@@ -1,3 +1,4 @@
 inventory
 *.retry
 *.log
+vendor/roles
