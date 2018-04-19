@@ -1,5 +1,13 @@
 ---
 
+# Nginx
+NGINX_ENABLE_SSL: False
+NGINX_REDIRECT_TO_HTTPS: False
+
+# Custom nginx var
+nginx_mibank_gunicorn_hosts:
+  - 127.0.0.1
+
 MIBANK_DATABASE_NAME: "mibankapp"
 MIBANK_DATABASE_USER: "mibank"
 MIBANK_DATABASE_PASSWORD: "mibankpassword"
