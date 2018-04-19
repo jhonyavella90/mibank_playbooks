@@ -8,6 +8,8 @@ NGINX_REDIRECT_TO_HTTPS: False
 nginx_mibank_gunicorn_hosts:
   - 127.0.0.1
 
+migrate_db: yes
+
 MIBANK_DATABASE_NAME: "mibankapp"
 MIBANK_DATABASE_USER: "mibank"
 MIBANK_DATABASE_PASSWORD: "mibankpassword"
