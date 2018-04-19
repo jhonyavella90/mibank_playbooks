@@ -13,7 +13,11 @@
   become: true
   roles:
     - role: nginx
-      nginx_extra_configs:
+      nginx_extra_sites:
         - "files/nginx/mibank.j2"
+      tags:
+        - mibank_service_nginx
     - role: geerlingguy.postgresql
     - role: mibank_service
+      tags:
+        - mibank_service_update
