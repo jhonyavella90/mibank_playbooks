@@ -1,1 +1,107 @@
 ---
+
+MIBANK_MEMCACHE: [ '127.0.0.1:11211' ]
+MIBANK_SUPPORT_EMAIL: ''
+MIBANK_SECRET_KEY: 'YOUR_SECRET_KEY_HERE'
+
+MIBANK_PLATFORM_NAME: 'Mibank'
+MIBANK_APPLICATION_NAME: 'Mibank app'
+
+# should match the timezone of your map reduce pipeline
+MIBANK_TIME_ZONE: 'UTC'
+MIBANK_LANGUAGE_CODE: 'en-us'
+
+MIBANK_DOMAIN: 'mibank'
+
+# Comma-delimited list of field names to include in the Learner List CSV download
+# e.g., "username,segments,cohort,engagements.videos_viewed,last_updated"
+# Default (null) includes all available fields, in alphabetical order
+MIBANK_LEARNER_API_LIST_DOWNLOAD_FIELDS: !!null
+
+MIBANK_DATABASE_NAME: 'mibank'
+MIBANK_DATABASE_USER: 'mibank001'
+MIBANK_DATABASE_PASSWORD: 'password'
+MIBANK_DATABASE_HOST: 127.0.0.1
+MIBANK_DATABASE_PORT: 3306
+MIBANK_MYSQL_OPTIONS:
+  connect_timeout: 10
+
+MIBANK_DATABASES:
+  # rw user
+  default:
+    ENGINE: 'django.db.backends.postgresql'
+    NAME: '{{ MIBANK_DATABASE_NAME }}'
+    USER: '{{ MIBANK_DATABASE_USER }}'
+    PASSWORD: '{{ MIBANK_DATABASE_PASSWORD }}'
+    HOST: "{{ MIBANK_DATABASE_HOST }}"
+    PORT: '{{ MIBANK_DATABASE_PORT }}'
+    OPTIONS: "{{ MIBANK_MYSQL_OPTIONS }}"
+
+MIBANK_CORS_ORIGIN_WHITELIST_EXTRA: []
+MIBANK_CORS_ORIGIN_WHITELIST_DEFAULT:
+  - "{{ MIBANK_DOMAIN }}"
+MIBANK_CORS_ORIGIN_WHITELIST: "{{ MIBANK_CORS_ORIGIN_WHITELIST_DEFAULT + MIBANK_CORS_ORIGIN_WHITELIST_EXTRA }}"
+
+#
+# This block of config is dropped into /edx/etc/mibank.yml
+MIBANK_CONFIG:
+  # db config
+  DATABASES: "{{ MIBANK_DATABASES }}"
+
+MIBANK_PIP_EXTRA_ARGS: "-i {{ COMMON_PYPI_MIRROR_URL }}"
+MIBANK_NGINX_PORT: "80"
+MIBANK_NGINX_SSL_PORT: "443"
+MIBANK_GUNICORN_WORKERS: "2"
+MIBANK_GUNICORN_EXTRA: ""
+
+MIBANK_VERSION: "master"
+MIBANK_GIT_IDENTITY: !!null
+
+MIBANK_GIT_PROTOCOL: 'ssh'
+MIBANK_GIT_MIRROR: 'bitbucket.org'
+MIBANK_GIT_PATH: 'pappcorn'
+
+MIBANK_REPOS:
+  - PROTOCOL: "{{ MIBANK_GIT_PROTOCOL }}"
+    DOMAIN: "{{ MIBANK_GIT_MIRROR }}"
+    PATH: "{{ MIBANK_GIT_PATH }}"
+    REPO: mibank-web-service.git
+    VERSION: "{{ MIBANK_VERSION }}"
+    DESTINATION: "{{ mibank_code_dir }}"
+    SSH_KEY: "{{ MIBANK_GIT_IDENTITY }}"
+
+#
+# vars are namespace with the module name.
+#
+mibank_environment:
+  DJANGO_SETTINGS_MODULE: "app.settings.aws"
+  ANALYTICS_DASHBOARD_CFG: "{{ COMMON_CFG_DIR  }}/{{ mibank_service_name }}.yml"
+
+mibank_service_name: mibank
+mibank_user: "{{ mibank_service_name }}"
+mibank_home: "{{ COMMON_APP_DIR }}/{{ mibank_service_name }}"
+mibank_venv_dir: "{{ mibank_home }}/venvs/{{ mibank_service_name }}"
+mibank_app_dir: "{{ COMMON_APP_DIR }}/{{ mibank_service_name }}"
+mibank_code_dir: "{{ mibank_app_dir }}/mibankapp"
+mibank_python_path: "{{ mibank_code_dir }}"
+mibank_conf_dir: "{{ mibank_home }}"
+mibank_log_dir: "{{ COMMON_LOG_DIR }}/{{ mibank_service_name }}"
+
+mibank_gunicorn_host: "127.0.0.1"
+mibank_gunicorn_port: "8000"
+mibank_gunicorn_timeout: "300"
+mibank_wsgi: "app.wsgi:application"
+
+mibank_django_settings: "app.settings.aws"
+mibank_manage: "{{ mibank_code_dir }}/manage.py"
+
+mibank_requirements_base: "{{ mibank_code_dir }}/requirements"
+mibank_requirements:
+  - production.txt
+
+#
+# OS packages
+#
+mibank_debian_pkgs:
+  - 'build-essential'
+  - gettext

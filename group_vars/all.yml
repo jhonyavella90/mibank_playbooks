@@ -1,17 +1,17 @@
 ---
 
-MIBANK_DB_NAME: "mibankapp"
-MIBANK_DB_USER: "mibank"
-MIBANK_DB_PASSWORD: "mibankpassword"
+MIBANK_DATABASE_NAME: "mibankapp"
+MIBANK_DATABASE_USER: "mibank"
+MIBANK_DATABASE_PASSWORD: "mibankpassword"
 
 # Vars for postgresql role
 
 postgresql_databases:
-  - name: "{{ MIBANK_DB_NAME }}"
+  - name: "{{ MIBANK_DATABASE_NAME }}"
 
 postgresql_users:
-  - name: "{{ MIBANK_DB_USER }}"
-    password: "{{ MIBANK_DB_PASSWORD }}"
-    db: "{{ MIBANK_DB_NAME }}"
+  - name: "{{ MIBANK_DATABASE_USER }}"
+    password: "{{ MIBANK_DATABASE_PASSWORD }}"
+    db: "{{ MIBANK_DATABASE_NAME }}"
     priv: ALL
     role_attr_flags: NOSUPERUSER,NOCREATEDB

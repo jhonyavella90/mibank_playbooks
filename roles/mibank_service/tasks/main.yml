@@ -1,1 +1,120 @@
 ---
+
+- name: setup the mibank env file
+  template:
+    src: "edx/app/mibank/mibank_env.j2"
+    dest: "{{ mibank_app_dir }}/mibank_env"
+    owner: "{{ mibank_user }}"
+    group: "{{ mibank_user }}"
+    mode: 0644
+  tags:
+    - install
+    - install:configuration
+
+- name: install application requirements
+  pip:
+    requirements: "{{ mibank_requirements_base }}/{{ item }}"
+    virtualenv: "{{ mibank_venv_dir }}"
+    state: present
+    extra_args: "--exists-action w"
+  become_user: "{{ mibank_user }}"
+  with_items: "{{ mibank_requirements }}"
+  tags:
+    - install
+    - install:app-requirements
+
+- name: migrate
+  shell: "{{ mibank_venv_dir }}/bin/python {{ mibank_manage }} migrate --noinput"
+  args:
+    chdir: "{{ mibank_code_dir }}"
+  become_user: "{{ mibank_user }}"
+  environment: "{{ mibank_environment }}"
+  when: migrate_db is defined and migrate_db|lower == "yes"
+  tags:
+    - migrate
+    - migrate:db
+
+- name: run collectstatic
+  shell: "{{ mibank_venv_dir }}/bin/python {{ mibank_manage }} {{ item }}"
+  args:
+    chdir: "{{ mibank_code_dir }}"
+  become_user: "{{ mibank_user }}"
+  environment: "{{ mibank_environment }}"
+  with_items:
+    - "collectstatic --noinput"
+  tags:
+    - assets
+    - assets:gather
+
+- name: write out the supervisior wrapper
+  template:
+    src: "edx/app/mibank/mibank.sh.j2"
+    dest: "{{ mibank_app_dir }}/{{ mibank_service_name }}.sh"
+    mode: 0650
+    owner: "{{ supervisor_user }}"
+    group: "{{ common_web_user }}"
+  tags:
+    - install
+    - install:configuration
+
+- name: write supervisord config
+  template:
+    src: edx/app/supervisor/conf.d.available/mibank.conf.j2
+    dest: "{{ supervisor_available_dir }}/{{ mibank_service_name }}.conf"
+    owner: "{{ supervisor_user }}"
+    group: "{{ common_web_user }}"
+    mode: 0644
+  tags:
+    - install
+    - install:configuration
+
+- name: enable supervisor script
+  file:
+    src: "{{ supervisor_available_dir }}/{{ mibank_service_name }}.conf"
+    dest: "{{ supervisor_cfg_dir }}/{{ mibank_service_name }}.conf"
+    state: link
+    force: yes
+  when: not disable_edx_services
+  tags:
+    - install
+    - install:configuration
+
+- name: update supervisor configuration
+  shell: "{{ supervisor_ctl }} -c {{ supervisor_cfg }} update"
+  when: not disable_edx_services
+  tags:
+    - manage
+    - manage:start
+
+- name: create symlinks from the venv bin dir
+  file:
+    src: "{{ mibank_venv_dir }}/bin/{{ item }}"
+    dest: "{{ COMMON_BIN_DIR }}/{{ item.split('.')[0] }}.{{ mibank_service_name }}"
+    state: link
+  with_items:
+  - python
+  - pip
+  - django-admin.py
+  tags:
+    - install
+    - install:base
+
+- name: create manage.py symlink
+  file:
+    src: "{{ mibank_manage }}"
+    dest: "{{ COMMON_BIN_DIR }}/manage.{{ mibank_service_name }}"
+    state: link
+  tags:
+    - install
+    - install:base
+
+- name: restart mibank
+  supervisorctl:
+    state: restarted
+    supervisorctl_path: "{{ supervisor_ctl }}"
+    config: "{{ supervisor_cfg }}"
+    name: "{{ mibank_service_name }}"
+  when: not disable_edx_services
+  become_user: "{{ supervisor_service_user }}"
+  tags:
+    - manage:start

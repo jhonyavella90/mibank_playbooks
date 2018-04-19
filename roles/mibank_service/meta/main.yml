@@ -1,1 +1,14 @@
 ---
+
+dependencies:
+  - common
+  - supervisor
+  - role: edx_service
+    edx_service_name: "{{ mibank_service_name }}"
+    edx_service_config: "{{ MIBANK_CONFIG }}"
+    edx_service_repos: "{{ MIBANK_REPOS }}"
+    edx_service_user: "{{ mibank_user }}"
+    edx_service_home: "{{ mibank_home }}"
+    edx_service_packages:
+      debian: "{{ mibank_debian_pkgs }}"
+      redhat: []

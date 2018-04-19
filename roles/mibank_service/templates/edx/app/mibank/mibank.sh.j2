@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# {{ ansible_managed }}
+
+{% set mibank_venv_bin = mibank_home + '/venvs/' + mibank_service_name + '/bin' %}
+{% set executable = mibank_venv_bin + '/gunicorn' %}
+
+source {{ mibank_app_dir }}/mibank_env
+
+{{ executable }} --pythonpath={{ mibank_python_path }} -b {{ mibank_gunicorn_host }}:{{ mibank_gunicorn_port }} -w {{ MIBANK_GUNICORN_WORKERS }} --timeout={{ mibank_gunicorn_timeout }} {{ MIBANK_GUNICORN_EXTRA }} {{ mibank_wsgi }}
