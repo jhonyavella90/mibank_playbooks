@@ -75,7 +75,7 @@ MIBANK_REPOS:
 #
 mibank_environment:
   DJANGO_SETTINGS_MODULE: "app.settings.aws"
-  ANALYTICS_DASHBOARD_CFG: "{{ COMMON_CFG_DIR  }}/{{ mibank_service_name }}.yml"
+  MIBANK_CFG: "{{ COMMON_CFG_DIR  }}/{{ mibank_service_name }}.yml"
 
 mibank_service_name: mibank
 mibank_user: "{{ mibank_service_name }}"
